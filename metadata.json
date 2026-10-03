@@ -1,0 +1,6 @@
+{
+  "name": "Texas Hold'em Poker Club",
+  "description": "เกมไพ่เท็กซัสโฮลเอ็มโป๊กเกอร์ออนไลน์ เล่นกับเพื่อนได้ 2-6 คนผ่าน PeerJS P2P พร้อมระบบชิปเดิมพัน คำนวณอันดับไพ่ และโต๊ะคาสิโนเขียวเรียบหรู",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
