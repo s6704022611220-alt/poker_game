@@ -218,10 +218,20 @@ export default function App() {
             };
 
             const added = engineRef.current.addPlayer(newPlayer);
+
+            // Directly send the fresh state specifically to the joining peer!
+            const sanitized = engineRef.current.getSanitizedStateFor(fromPeerId);
+            network.sendTo(fromPeerId, {
+              type: 'SYNC_STATE',
+              state: sanitized,
+            });
+
             if (added) {
               const joinLog = addLog(`ผู้เล่น [${msg.name}] เข้าร่วมโต๊ะแล้ว`, 'system');
               sound.playChips();
               broadcastState([joinLog]);
+            } else {
+              broadcastState();
             }
           } else if (msg.type === 'ACTION') {
             handleHostAction(fromPeerId, msg.action, msg.amount);
@@ -340,12 +350,23 @@ export default function App() {
     setCurrentUser(clientPlayer);
     setInRoom(true);
 
-    // Send join message to host
+    // Send join message to host immediately
     net.sendToHost({
       type: 'JOIN',
       name,
       avatarSeed: clientPlayer.avatarSeed,
     });
+
+    // Backup retry after 500ms in case channel was buffering
+    setTimeout(() => {
+      if (networkRef.current && !networkRef.current.isHost) {
+        networkRef.current.sendToHost({
+          type: 'JOIN',
+          name,
+          avatarSeed: clientPlayer.avatarSeed,
+        });
+      }
+    }, 500);
 
     addLog(`เชื่อมต่อไปยังห้อง [${roomCodeInput}] เรียบร้อยแล้ว`, 'system');
     showToast(`เชื่อมต่อห้อง ${roomCodeInput} สำเร็จ`);
@@ -515,6 +536,28 @@ export default function App() {
           onOpenRules={() => setIsRulesOpen(true)}
           initialRoomCode={initialRoomCode}
         />
+      )}
+
+      {/* Client Connecting & Syncing with Host Loader */}
+      {inRoom && !gameState && (
+        <div className="relative w-full h-full flex flex-col items-center justify-center p-6 text-center z-40 bg-[#07130b] select-none">
+          <div className="relative w-20 h-20 mb-5 flex items-center justify-center">
+            <span className="w-20 h-20 rounded-full border-4 border-amber-500/20 border-t-amber-400 animate-spin absolute" />
+            <span className="text-3xl animate-pulse text-amber-400 font-serif">♠</span>
+          </div>
+          <h2 className="text-lg sm:text-xl font-bold text-white mb-2">
+            กำลังเข้าสู่ห้อง [{roomCode}]...
+          </h2>
+          <p className="text-xs sm:text-sm text-emerald-400 font-medium animate-pulse mb-6 max-w-xs">
+            กำลังเชื่อมต่อ P2P และรอรับข้อมูลโต๊ะโป๊กเกอร์จาก Host...
+          </p>
+          <button
+            onClick={handleLeaveRoom}
+            className="text-xs bg-slate-800 hover:bg-slate-700 text-rose-300 border border-slate-700 px-4 py-2 rounded-xl cursor-pointer transition-colors"
+          >
+            ยกเลิกและกลับหน้าหลัก
+          </button>
+        </div>
       )}
 
       {/* Active Room View */}
