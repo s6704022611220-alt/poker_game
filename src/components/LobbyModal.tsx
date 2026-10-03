@@ -66,10 +66,10 @@ export const LobbyModal: React.FC<LobbyModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md select-none">
-      <div className="relative w-full max-w-md bg-gradient-to-b from-slate-900 via-slate-900 to-[#0c1a12] border-2 border-amber-500/50 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.9)] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md select-none overflow-y-auto">
+      <div className="relative w-full max-w-sm sm:max-w-md bg-gradient-to-b from-slate-900 via-slate-900 to-[#0c1a12] border-2 border-amber-500/50 rounded-2xl sm:rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.9)] overflow-hidden max-h-[92dvh] flex flex-col">
         {/* Banner with Poker Suits & Title */}
-        <div className="pt-6 pb-4 px-6 text-center border-b border-slate-800/80 bg-slate-950/60 relative">
+        <div className="pt-4 sm:pt-6 pb-3 sm:pb-4 px-4 sm:px-6 text-center border-b border-slate-800/80 bg-slate-950/60 relative shrink-0">
           <div className="text-2xl sm:text-3xl mb-1 flex items-center justify-center gap-2">
             <span className="text-red-500">♥</span>
             <span className="text-white">♠</span>
@@ -117,7 +117,7 @@ export const LobbyModal: React.FC<LobbyModalProps> = ({
         </div>
 
         {/* Form Body */}
-        <div className="p-5 sm:p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-3.5 sm:space-y-4 overflow-y-auto flex-1">
           {/* Nickname Input */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1.5">

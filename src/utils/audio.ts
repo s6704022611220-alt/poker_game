@@ -152,6 +152,46 @@ class SoundFX {
     }
   }
 
+  public playAllIn() {
+    if (this.isMuted) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    try {
+      const t = this.ctx.currentTime;
+      // Dramatic bass boom
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140, t);
+      osc.frequency.exponentialRampToValueAtTime(50, t + 0.35);
+
+      gain.gain.setValueAtTime(0.4, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.35);
+
+      // High-energy fanfare arpeggio
+      [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+        const chime = this.ctx!.createOscillator();
+        const cGain = this.ctx!.createGain();
+        chime.type = 'sine';
+        chime.frequency.setValueAtTime(freq, t + i * 0.05);
+        cGain.gain.setValueAtTime(0.25, t + i * 0.05);
+        cGain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.05 + 0.25);
+        chime.connect(cGain);
+        cGain.connect(this.ctx!.destination);
+        chime.start(t + i * 0.05);
+        chime.stop(t + i * 0.05 + 0.25);
+      });
+    } catch {
+      // Audio fallback
+    }
+  }
+
   public playTurnAlert() {
     if (this.isMuted) return;
     this.initCtx();

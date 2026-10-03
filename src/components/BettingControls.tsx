@@ -173,24 +173,32 @@ export const BettingControls: React.FC<BettingControlsProps> = ({
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3.5 bg-slate-900/98 border-t-2 border-amber-500/70 backdrop-blur-2xl rounded-t-3xl shadow-[0_-15px_35px_rgba(0,0,0,0.85)] flex flex-col gap-2.5 z-40">
+    <div className="w-full max-w-4xl mx-auto px-2 sm:px-6 py-1.5 sm:py-3 bg-slate-900/98 border-t-2 border-amber-500/70 backdrop-blur-2xl rounded-t-2xl sm:rounded-t-3xl shadow-[0_-15px_35px_rgba(0,0,0,0.85)] flex flex-col gap-1.5 sm:gap-2.5 z-40">
       
       {/* Prominent Hand Showcase Bar (ไพ่บนมือเห็นชัดเจนมาก พร้อมบอกลำดับไพ่ทันที) */}
       {myPlayer && myPlayer.cards.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-2 bg-gradient-to-r from-slate-950/90 via-slate-900/90 to-slate-950/90 border border-emerald-500/30 rounded-2xl px-3 py-2 shadow-inner">
-          <div className="flex items-center gap-3">
-            {/* Big Cards in Hand */}
-            <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 bg-gradient-to-r from-slate-950/90 via-slate-900/90 to-slate-950/90 border border-emerald-500/30 rounded-xl sm:rounded-2xl px-2 sm:px-3 py-1.5 sm:py-2 shadow-inner">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Cards in Hand */}
+            <div className="flex items-center gap-1 sm:gap-1.5">
               {myPlayer.cards.map((c, idx) => (
                 <div
                   key={idx}
-                  className="transition-transform duration-200 hover:-translate-y-1 hover:scale-105 drop-shadow-[0_6px_12px_rgba(0,0,0,0.7)]"
+                  className="transition-transform duration-200 hover:-translate-y-1 hover:scale-105 drop-shadow-[0_4px_10px_rgba(0,0,0,0.7)]"
                 >
+                  <PokerCard
+                    card={c}
+                    size="md"
+                    isWinning={isCardWinning(c)}
+                    hidden={myPlayer.folded}
+                    className="sm:hidden"
+                  />
                   <PokerCard
                     card={c}
                     size="lg"
                     isWinning={isCardWinning(c)}
                     hidden={myPlayer.folded}
+                    className="hidden sm:flex"
                   />
                 </div>
               ))}
@@ -198,37 +206,37 @@ export const BettingControls: React.FC<BettingControlsProps> = ({
 
             {/* Hand Name, Chips & Strength */}
             <div className="flex flex-col justify-center">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1">
-                  <span>🃏 ไพ่บนมือของคุณ</span>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1">
+                  <span>🃏 ไพ่บนมือ</span>
                 </span>
                 {myPlayer.folded ? (
-                  <span className="text-[10px] bg-rose-950 text-rose-300 px-2 py-0.5 rounded-full font-bold border border-rose-600/40">
-                    หมอบแล้ว (FOLDED)
+                  <span className="text-[9px] sm:text-[10px] bg-rose-950 text-rose-300 px-1.5 sm:px-2 py-0.5 rounded-full font-bold border border-rose-600/40">
+                    หมอบแล้ว
                   </span>
                 ) : (
-                  <span className="text-[10px] bg-slate-800 text-amber-300 font-mono font-bold px-2 py-0.5 rounded-full border border-slate-700">
+                  <span className="text-[9px] sm:text-[10px] bg-slate-800 text-amber-300 font-mono font-bold px-1.5 sm:px-2 py-0.5 rounded-full border border-slate-700">
                     ชิป: ${myPlayer.chips.toLocaleString()}
                   </span>
                 )}
               </div>
-              <div className="text-sm sm:text-base font-black text-white mt-0.5 tracking-wide">
+              <div className="text-xs sm:text-base font-black text-white mt-0.5 tracking-wide leading-tight">
                 {myPlayer.folded ? 'คุณหมอบไพ่แล้วในรอบนี้' : handDescription}
               </div>
             </div>
           </div>
 
           {/* Turn Status Message */}
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-1.5 text-xs">
             {isMyTurn ? (
-              <span className="flex items-center gap-1.5 text-xs font-black text-amber-400 bg-amber-950/80 border border-amber-500/60 px-3 py-1.5 rounded-xl animate-pulse">
-                <span className="w-2 h-2 rounded-full bg-amber-400" />
-                ถึงตาคุณเล่นแล้ว!
+              <span className="flex items-center gap-1 text-[11px] sm:text-xs font-black text-amber-400 bg-amber-950/80 border border-amber-500/60 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl animate-pulse">
+                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-400" />
+                ถึงตาคุณเล่น!
               </span>
             ) : (
-              <span className="text-slate-400 flex items-center gap-1.5 text-xs bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-800">
-                <span className="w-2 h-2 rounded-full bg-amber-500/60 animate-ping" />
-                รอ: <strong className="text-slate-200">{activePlayer ? activePlayer.name : '-'}</strong>
+              <span className="text-slate-400 flex items-center gap-1 text-[10px] sm:text-xs bg-slate-950/60 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border border-slate-800">
+                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500/60 animate-ping" />
+                รอ: <strong className="text-slate-200 truncate max-w-[70px] sm:max-w-none">{activePlayer ? activePlayer.name : '-'}</strong>
               </span>
             )}
           </div>
@@ -237,7 +245,7 @@ export const BettingControls: React.FC<BettingControlsProps> = ({
 
       {/* If not player's turn and no controls needed */}
       {!isMyTurn ? (
-        <div className="flex items-center justify-between text-xs text-slate-400 px-2 py-1">
+        <div className="flex items-center justify-between text-[11px] sm:text-xs text-slate-400 px-2 py-0.5">
           <span>
             เดิมพันรอบนี้: <strong className="text-amber-300">${currentBet}</strong>
           </span>
@@ -249,40 +257,40 @@ export const BettingControls: React.FC<BettingControlsProps> = ({
         <>
           {/* Raise Slider & Quick Buttons (Visible when player can raise) */}
           {canRaise && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-0.5 border-b border-slate-800/80 pb-2">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 pt-0.5 border-b border-slate-800/80 pb-1.5 sm:pb-2">
               {/* Quick preset buttons */}
-              <div className="flex items-center gap-1.5 w-full sm:w-auto justify-center">
+              <div className="grid grid-cols-4 gap-1 w-full sm:w-auto">
                 <button
                   onClick={() => setPreset('min')}
-                  className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 cursor-pointer"
+                  className="px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 cursor-pointer text-center"
                 >
                   Min (${minRaiseTarget})
                 </button>
                 <button
                   onClick={() => setPreset('halfPot')}
-                  className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 cursor-pointer"
+                  className="px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 cursor-pointer text-center"
                 >
                   ½ Pot
                 </button>
                 <button
                   onClick={() => setPreset('pot')}
-                  className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 cursor-pointer"
+                  className="px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 cursor-pointer text-center"
                 >
                   Pot (${pot})
                 </button>
                 <button
                   onClick={() => setPreset('allIn')}
-                  className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-red-950/80 hover:bg-red-900 text-rose-300 border border-rose-700/60 cursor-pointer"
+                  className="px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-lg bg-red-950/80 hover:bg-red-900 text-rose-300 border border-rose-700/60 cursor-pointer text-center"
                 >
                   All-In (${maxRaiseTarget})
                 </button>
               </div>
 
               {/* Slider & precise input */}
-              <div className="flex items-center gap-2 w-full sm:w-72">
+              <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-72">
                 <button
                   onClick={() => setRaiseAmount((prev) => Math.max(minRaiseTarget, prev - minRaise))}
-                  className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center justify-center cursor-pointer"
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center justify-center cursor-pointer text-xs sm:text-sm"
                 >
                   -
                 </button>
@@ -293,15 +301,15 @@ export const BettingControls: React.FC<BettingControlsProps> = ({
                   step={minRaise}
                   value={raiseAmount}
                   onChange={(e) => setRaiseAmount(Number(e.target.value))}
-                  className="w-full accent-amber-500 cursor-pointer"
+                  className="w-full accent-amber-500 cursor-pointer h-1.5 sm:h-2"
                 />
                 <button
                   onClick={() => setRaiseAmount((prev) => Math.min(maxRaiseTarget, prev + minRaise))}
-                  className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center justify-center cursor-pointer"
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center justify-center cursor-pointer text-xs sm:text-sm"
                 >
                   +
                 </button>
-                <span className="text-xs font-mono font-bold text-amber-300 min-w-[50px] text-right">
+                <span className="text-[11px] sm:text-xs font-mono font-bold text-amber-300 min-w-[45px] text-right">
                   ${raiseAmount}
                 </span>
               </div>
@@ -309,31 +317,31 @@ export const BettingControls: React.FC<BettingControlsProps> = ({
           )}
 
           {/* Primary Action Buttons (Fold, Check/Call, Raise, All-in) */}
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-3">
             {/* FOLD */}
             <button
               onClick={() => onAction('fold')}
-              className="py-3 sm:py-3.5 px-3 rounded-xl bg-gradient-to-b from-rose-700 to-rose-900 hover:from-rose-600 hover:to-rose-800 text-white font-extrabold text-sm sm:text-base border border-rose-500/50 shadow-md shadow-rose-950/50 cursor-pointer transition-all hover:scale-102 active:scale-98"
+              className="py-2.5 sm:py-3.5 px-1 sm:px-3 rounded-xl bg-gradient-to-b from-rose-700 to-rose-900 hover:from-rose-600 hover:to-rose-800 text-white font-black text-xs sm:text-base border border-rose-500/50 shadow-md shadow-rose-950/50 cursor-pointer transition-all hover:scale-102 active:scale-98 flex items-center justify-center text-center"
             >
-              หมอบ (FOLD)
+              <span>หมอบ</span>
             </button>
 
             {/* CHECK or CALL */}
             {canCheck ? (
               <button
                 onClick={() => onAction('check')}
-                className="py-3 sm:py-3.5 px-3 rounded-xl bg-gradient-to-b from-blue-600 to-indigo-800 hover:from-blue-500 hover:to-indigo-700 text-white font-extrabold text-sm sm:text-base border border-blue-400/50 shadow-md shadow-indigo-950/50 cursor-pointer transition-all hover:scale-102 active:scale-98"
+                className="py-2.5 sm:py-3.5 px-1 sm:px-3 rounded-xl bg-gradient-to-b from-blue-600 to-indigo-800 hover:from-blue-500 hover:to-indigo-700 text-white font-black text-xs sm:text-base border border-blue-400/50 shadow-md shadow-indigo-950/50 cursor-pointer transition-all hover:scale-102 active:scale-98 flex items-center justify-center text-center"
               >
-                ผ่าน (CHECK)
+                <span>ผ่าน</span>
               </button>
             ) : (
               <button
                 onClick={() => onAction('call')}
                 disabled={!canCall}
-                className="py-3 sm:py-3.5 px-3 rounded-xl bg-gradient-to-b from-blue-600 to-indigo-800 hover:from-blue-500 hover:to-indigo-700 text-white font-extrabold text-sm sm:text-base border border-blue-400/50 shadow-md shadow-indigo-950/50 cursor-pointer transition-all hover:scale-102 active:scale-98 flex flex-col items-center justify-center leading-tight"
+                className="py-2.5 sm:py-3.5 px-1 sm:px-3 rounded-xl bg-gradient-to-b from-blue-600 to-indigo-800 hover:from-blue-500 hover:to-indigo-700 text-white font-black text-xs sm:text-base border border-blue-400/50 shadow-md shadow-indigo-950/50 cursor-pointer transition-all hover:scale-102 active:scale-98 flex flex-col items-center justify-center leading-tight"
               >
-                <span>ตาม (CALL)</span>
-                <span className="text-xs text-blue-200 font-mono font-bold">
+                <span>ตาม</span>
+                <span className="text-[10px] sm:text-xs text-blue-200 font-mono font-bold">
                   ${Math.min(callCost, maxCanBet)}
                 </span>
               </button>
@@ -343,19 +351,19 @@ export const BettingControls: React.FC<BettingControlsProps> = ({
             {canRaise ? (
               <button
                 onClick={() => onAction('raise', raiseAmount)}
-                className="py-3 sm:py-3.5 px-3 rounded-xl bg-gradient-to-b from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700 text-white font-extrabold text-sm sm:text-base border border-emerald-400/50 shadow-md shadow-emerald-950/50 cursor-pointer transition-all hover:scale-102 active:scale-98 flex flex-col items-center justify-center leading-tight"
+                className="py-2.5 sm:py-3.5 px-1 sm:px-3 rounded-xl bg-gradient-to-b from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700 text-white font-black text-xs sm:text-base border border-emerald-400/50 shadow-md shadow-emerald-950/50 cursor-pointer transition-all hover:scale-102 active:scale-98 flex flex-col items-center justify-center leading-tight"
               >
-                <span>เกเพิ่ม (RAISE)</span>
-                <span className="text-xs text-emerald-200 font-mono font-bold">
-                  เป็น ${raiseAmount}
+                <span>เกเพิ่ม</span>
+                <span className="text-[10px] sm:text-xs text-emerald-200 font-mono font-bold truncate max-w-full">
+                  ${raiseAmount}
                 </span>
               </button>
             ) : (
               <button
                 disabled
-                className="py-3 sm:py-3.5 px-3 rounded-xl bg-slate-800/80 text-slate-500 font-bold text-sm border border-slate-700/50 cursor-not-allowed"
+                className="py-2.5 sm:py-3.5 px-1 sm:px-3 rounded-xl bg-slate-800/80 text-slate-500 font-bold text-xs sm:text-sm border border-slate-700/50 cursor-not-allowed flex items-center justify-center text-center"
               >
-                เกเพิ่ม (RAISE)
+                <span>เกเพิ่ม</span>
               </button>
             )}
 
@@ -363,10 +371,12 @@ export const BettingControls: React.FC<BettingControlsProps> = ({
             <button
               onClick={() => onAction('all-in')}
               disabled={maxCanBet === 0}
-              className="col-span-3 sm:col-span-1 py-3 sm:py-3.5 px-3 rounded-xl bg-gradient-to-b from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-sm sm:text-base border border-amber-300 shadow-lg shadow-amber-950/50 cursor-pointer transition-all hover:scale-102 active:scale-98 flex items-center justify-center gap-1.5"
+              className="py-2.5 sm:py-3.5 px-1 sm:px-3 rounded-xl bg-gradient-to-b from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs sm:text-base border border-amber-300 shadow-lg shadow-amber-950/50 cursor-pointer transition-all hover:scale-102 active:scale-98 flex flex-col items-center justify-center leading-tight"
             >
-              <span>🔥 ALL-IN</span>
-              <span className="font-mono text-xs">(${maxRaiseTarget})</span>
+              <span>เทหมด</span>
+              <span className="font-mono text-[10px] sm:text-xs font-black truncate max-w-full">
+                (${maxRaiseTarget})
+              </span>
             </button>
           </div>
         </>

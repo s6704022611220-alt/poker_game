@@ -11,7 +11,6 @@ import { PokerPeerNetwork, formatHostPeerId } from './utils/peerManager';
 import { PokerEngine, INITIAL_CHIPS, BOT_NAMES } from './game/pokerEngine';
 import { sound } from './utils/audio';
 import { PokerTable } from './components/PokerTable';
-import { BettingControls } from './components/BettingControls';
 import { GameLog } from './components/GameLog';
 import { LobbyModal } from './components/LobbyModal';
 import { RulesModal } from './components/RulesModal';
@@ -496,7 +495,7 @@ export default function App() {
   }, [gameState?.phase, gameState?.winners]);
 
   return (
-    <div className="min-h-screen bg-[#070e0a] text-slate-100 flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950 font-sans">
+    <div className="h-[100dvh] max-h-[100dvh] w-full bg-[#070e0a] text-slate-100 flex flex-col justify-between overflow-hidden selection:bg-amber-500 selection:text-slate-950 font-sans">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-black/90 border border-amber-400 text-amber-300 px-4 py-2 rounded-full text-xs font-bold shadow-2xl backdrop-blur-md animate-fade-in flex items-center gap-2">
@@ -520,95 +519,7 @@ export default function App() {
 
       {/* Active Room View */}
       {inRoom && gameState && currentUser && (
-        <>
-          {/* Top Bar Header */}
-          <header className="w-full bg-slate-950/80 border-b border-slate-800/80 backdrop-blur-md px-3 sm:px-6 py-2.5 flex items-center justify-between z-30 shrink-0">
-            {/* Left: Brand & Room ID */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="flex items-center gap-1.5 font-serif font-black text-amber-400 text-sm sm:text-base tracking-wide">
-                <span>♠</span>
-                <span className="hidden sm:inline">TEXAS HOLD'EM</span>
-              </div>
-
-              {/* Room Code Badge */}
-              <div className="flex items-center gap-1 bg-slate-900 border border-amber-500/40 rounded-lg px-2 sm:px-2.5 py-1">
-                <span className="text-[10px] text-slate-400 uppercase font-semibold hidden xs:inline">
-                  ห้อง:
-                </span>
-                <span className="font-mono font-black text-xs sm:text-sm text-amber-300">
-                  {roomCode}
-                </span>
-                <button
-                  onClick={handleCopyRoom}
-                  title="คัดลอกรหัสห้อง"
-                  className="ml-1 text-slate-400 hover:text-amber-300 text-xs cursor-pointer p-0.5"
-                >
-                  📋
-                </button>
-              </div>
-
-              {/* Copy Invite Link */}
-              <button
-                onClick={handleCopyLink}
-                title="คัดลอกลิงก์ส่งให้เพื่อน"
-                className="hidden md:flex items-center gap-1 text-xs bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
-              >
-                <span>🔗 ลิงก์ชวนเพื่อน</span>
-              </button>
-            </div>
-
-            {/* Right: Controls & Info */}
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              {/* Show Winner Banner toggle if in Showdown */}
-              {gameState.phase === 'showdown' && gameState.winners.length > 0 && !showWinnerBanner && (
-                <button
-                  onClick={() => setShowWinnerBanner(true)}
-                  className="text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 px-2.5 sm:px-3 py-1 rounded-lg font-black flex items-center gap-1 cursor-pointer transition-all shadow-md animate-bounce"
-                >
-                  <span>🏆</span>
-                  <span>ดูผลผู้ชนะ</span>
-                </button>
-              )}
-
-              {/* Add Bot button for Host */}
-              {isHost && gameState.players.length < 6 && (
-                <button
-                  onClick={handleAddBot}
-                  className="text-xs bg-emerald-950 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 px-2 sm:px-3 py-1 rounded-lg font-semibold flex items-center gap-1 cursor-pointer transition-colors shadow-sm"
-                >
-                  <span>🤖</span>
-                  <span className="hidden sm:inline">เพิ่มบอท</span>
-                </button>
-              )}
-
-              {/* Rules Button */}
-              <button
-                onClick={() => setIsRulesOpen(true)}
-                title="คู่มือ & กติกา"
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs flex items-center justify-center cursor-pointer transition-colors"
-              >
-                📖
-              </button>
-
-              {/* Mute Button */}
-              <button
-                onClick={toggleMute}
-                title={isMuted ? 'เปิดเสียง' : 'ปิดเสียง'}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs flex items-center justify-center cursor-pointer transition-colors"
-              >
-                {isMuted ? '🔇' : '🔊'}
-              </button>
-
-              {/* Leave Room Button */}
-              <button
-                onClick={handleLeaveRoom}
-                className="text-xs bg-red-950/80 hover:bg-red-900 border border-red-700/60 text-rose-300 px-2 sm:px-2.5 py-1 rounded-lg font-semibold cursor-pointer transition-colors"
-              >
-                ออกจากห้อง
-              </button>
-            </div>
-          </header>
-
+        <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
           {/* Prominent Unobstructed Winner Banner during Showdown */}
           {showWinnerBanner &&
             gameState.phase === 'showdown' &&
@@ -621,29 +532,32 @@ export default function App() {
               />
             )}
 
-          {/* Main Poker Table Canvas Area */}
-          <main className="flex-1 w-full flex items-center justify-center p-2 sm:p-4 overflow-hidden relative">
-            <PokerTable
-              gameState={gameState}
-              currentUserId={currentUser.id}
-              isHostUser={isHost}
-              onKickBot={handleKickBot}
-              winningCardSet={winningCardSet}
-            />
-          </main>
-
-          {/* Bottom Docked Betting Controls */}
-          <footer className="w-full shrink-0 z-30">
-            <BettingControls
-              gameState={gameState}
-              currentUserId={currentUser.id}
-              isHostUser={isHost}
-              onAction={handlePlayerAction}
-              onNextHand={handleNextHand}
-              onStartGame={handleStartGame}
-              winningCardSet={winningCardSet}
-            />
-          </footer>
+          {/* Fullscreen Poker Table with Embedded In-Table Buttons & HUD */}
+          <PokerTable
+            gameState={gameState}
+            currentUserId={currentUser.id}
+            isHostUser={isHost}
+            roomCode={roomCode}
+            isMuted={isMuted}
+            onToggleMute={toggleMute}
+            onOpenRules={() => setIsRulesOpen(true)}
+            onToggleLog={() => setIsLogOpen(!isLogOpen)}
+            onLeaveRoom={handleLeaveRoom}
+            onAddBot={handleAddBot}
+            onKickBot={handleKickBot}
+            onCopyRoom={handleCopyRoom}
+            onCopyLink={handleCopyLink}
+            onAction={handlePlayerAction}
+            onStartGame={handleStartGame}
+            onNextHand={handleNextHand}
+            winningCardSet={winningCardSet}
+            showWinnerBannerButton={
+              gameState.phase === 'showdown' &&
+              gameState.winners.length > 0 &&
+              !showWinnerBanner
+            }
+            onOpenWinnerBanner={() => setShowWinnerBanner(true)}
+          />
 
           {/* Game Log & Chat Slide-over Drawer */}
           <GameLog
@@ -652,7 +566,7 @@ export default function App() {
             isOpen={isLogOpen}
             onToggle={() => setIsLogOpen(!isLogOpen)}
           />
-        </>
+        </div>
       )}
     </div>
   );
