@@ -160,5 +160,212 @@
   .animate-flame-glow {
     animation: flameGlow 1.2s ease-in-out infinite;
   }
+
+  @keyframes dealHoleCard {
+    0% {
+      transform: perspective(800px) translateY(-160px) scale(0.35) rotate(-22deg) rotateY(180deg);
+      opacity: 0;
+      filter: drop-shadow(0 30px 25px rgba(0,0,0,0.95));
+    }
+    60% {
+      transform: perspective(800px) translateY(8px) scale(1.1) rotate(4deg) rotateY(30deg);
+      opacity: 1;
+    }
+    100% {
+      transform: perspective(800px) translateY(0) scale(1) rotate(0deg) rotateY(0deg);
+      opacity: 1;
+    }
+  }
+
+  /* Community Cards Dealing From Deck (Flop 0, 1, 2) */
+  @keyframes dealFromDeck0 {
+    0% {
+      transform: perspective(800px) translate(140px, -65px) scale(0.6) rotate(-25deg) rotateY(180deg);
+      opacity: 0.2;
+      filter: drop-shadow(0 20px 20px rgba(0,0,0,0.9));
+    }
+    40% {
+      opacity: 1;
+    }
+    75% {
+      transform: perspective(800px) translate(0, -6px) scale(1.08) rotate(4deg) rotateY(25deg);
+    }
+    100% {
+      transform: perspective(800px) translate(0, 0) scale(1) rotate(0deg) rotateY(0deg);
+      opacity: 1;
+    }
+  }
+
+  @keyframes dealFromDeck1 {
+    0% {
+      transform: perspective(800px) translate(90px, -65px) scale(0.6) rotate(-22deg) rotateY(180deg);
+      opacity: 0.2;
+      filter: drop-shadow(0 20px 20px rgba(0,0,0,0.9));
+    }
+    40% {
+      opacity: 1;
+    }
+    75% {
+      transform: perspective(800px) translate(0, -6px) scale(1.08) rotate(4deg) rotateY(25deg);
+    }
+    100% {
+      transform: perspective(800px) translate(0, 0) scale(1) rotate(0deg) rotateY(0deg);
+      opacity: 1;
+    }
+  }
+
+  @keyframes dealFromDeck2 {
+    0% {
+      transform: perspective(800px) translate(40px, -65px) scale(0.6) rotate(-18deg) rotateY(180deg);
+      opacity: 0.2;
+      filter: drop-shadow(0 20px 20px rgba(0,0,0,0.9));
+    }
+    40% {
+      opacity: 1;
+    }
+    75% {
+      transform: perspective(800px) translate(0, -6px) scale(1.08) rotate(3deg) rotateY(25deg);
+    }
+    100% {
+      transform: perspective(800px) translate(0, 0) scale(1) rotate(0deg) rotateY(0deg);
+      opacity: 1;
+    }
+  }
+
+  /* Turn Dealing from Deck */
+  @keyframes dealFromDeckTurn {
+    0% {
+      transform: perspective(800px) translate(-10px, -65px) scale(0.6) rotate(-18deg) rotateY(180deg);
+      opacity: 0.2;
+      filter: drop-shadow(0 20px 20px rgba(0,0,0,0.9));
+    }
+    40% {
+      opacity: 1;
+    }
+    75% {
+      transform: perspective(800px) translate(0, -8px) scale(1.12) rotate(5deg) rotateY(25deg);
+    }
+    100% {
+      transform: perspective(800px) translate(0, 0) scale(1) rotate(0deg) rotateY(0deg);
+      opacity: 1;
+    }
+  }
+
+  /* River Dealing from Deck */
+  @keyframes dealFromDeckRiver {
+    0% {
+      transform: perspective(800px) translate(-60px, -65px) scale(0.6) rotate(-18deg) rotateY(180deg);
+      opacity: 0.2;
+      filter: drop-shadow(0 20px 20px rgba(0,0,0,0.9));
+    }
+    40% {
+      opacity: 1;
+    }
+    75% {
+      transform: perspective(800px) translate(0, -8px) scale(1.14) rotate(-5deg) rotateY(25deg);
+    }
+    100% {
+      transform: perspective(800px) translate(0, 0) scale(1) rotate(0deg) rotateY(0deg);
+      opacity: 1;
+    }
+  }
+
+  /* Deck Top Card Slide Animation */
+  @keyframes deckTopSlide {
+    0% {
+      transform: translate(0, 0) rotate(0deg);
+      opacity: 1;
+    }
+    40% {
+      transform: translate(-12px, 16px) rotate(-10deg);
+      opacity: 0.9;
+    }
+    80% {
+      transform: translate(-20px, 28px) rotate(-18deg);
+      opacity: 0.4;
+    }
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  @keyframes popActionBadge {
+    0% {
+      transform: scale(0.6) translateY(8px);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.12) translateY(-2px);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-deal-deck-0 {
+    animation: dealFromDeck0 0.55s cubic-bezier(0.2, 0.85, 0.4, 1.15) 0ms both;
+  }
+
+  .animate-deal-deck-1 {
+    animation: dealFromDeck1 0.55s cubic-bezier(0.2, 0.85, 0.4, 1.15) 180ms both;
+  }
+
+  .animate-deal-deck-2 {
+    animation: dealFromDeck2 0.55s cubic-bezier(0.2, 0.85, 0.4, 1.15) 360ms both;
+  }
+
+  .animate-deal-deck-turn {
+    animation: dealFromDeckTurn 0.65s cubic-bezier(0.2, 0.85, 0.4, 1.15) 50ms both;
+  }
+
+  .animate-deal-deck-river {
+    animation: dealFromDeckRiver 0.7s cubic-bezier(0.2, 0.85, 0.4, 1.15) 50ms both;
+  }
+
+  .animate-deck-draw {
+    animation: deckTopSlide 0.45s ease-out;
+  }
+
+  .animate-deal-hole-1 {
+    animation: dealHoleCard 0.5s cubic-bezier(0.2, 0.85, 0.4, 1.15) 0ms both;
+  }
+
+  .animate-deal-hole-2 {
+    animation: dealHoleCard 0.5s cubic-bezier(0.2, 0.85, 0.4, 1.15) 220ms both;
+  }
+
+  .animate-action-pop {
+    animation: popActionBadge 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes allInBannerFade {
+    0% {
+      transform: scale(0.6) translateY(20px);
+      opacity: 0;
+    }
+    15% {
+      transform: scale(1.05) translateY(-3px);
+      opacity: 1;
+    }
+    25% {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+    82% {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(0.9) translateY(-12px);
+      opacity: 0;
+    }
+  }
+
+  .animate-allin-banner {
+    animation: allInBannerFade 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
 }
 

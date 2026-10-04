@@ -113,33 +113,111 @@ export const PokerTable: React.FC<PokerTableProps> = ({
     subtitle: string;
   } | null>(null);
 
+  // Visual Card Deck state
+  const [isDrawingDeck, setIsDrawingDeck] = useState(false);
+
+  useEffect(() => {
+    if (communityCards.length > 0 || phase === 'preflop') {
+      setIsDrawingDeck(true);
+      const timer = setTimeout(() => setIsDrawingDeck(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [communityCards.length, phase, gameState.handNumber]);
+
+  // Remaining cards in deck
+  const activePlayersCount = players.filter((p) => !p.folded).length;
+  const remainingCardsCount = Math.max(0, 52 - (activePlayersCount * 2) - communityCards.length);
+
   // All-In Dramatic Announcement State
   const [allInAnnouncement, setAllInAnnouncement] = useState<{
     playerName: string;
     amount: number;
   } | null>(null);
 
+  const allInTimerRef = useRef<NodeJS.Timeout | null>(null);
   const prevAllInSetRef = useRef<Set<string>>(new Set());
   const prevCardsCountRef = useRef(communityCards.length);
 
+  // Recent Opponent Action Alert Ticker
+  const [latestActionAlert, setLatestActionAlert] = useState<{
+    playerName: string;
+    actionType: string;
+    text: string;
+    amount?: number;
+  } | null>(null);
+
+  const prevActionsMapRef = useRef<Map<string, string>>(new Map());
+
   useEffect(() => {
+    if (phase === 'lobby') {
+      setLatestActionAlert(null);
+      prevActionsMapRef.current.clear();
+      return;
+    }
+
+    for (const p of players) {
+      if (p.lastAction) {
+        const key = `${p.id}-${p.lastAction.type}-${p.lastAction.amount || 0}`;
+        const prevKey = prevActionsMapRef.current.get(p.id);
+        if (key !== prevKey) {
+          prevActionsMapRef.current.set(p.id, key);
+          setLatestActionAlert({
+            playerName: p.name,
+            actionType: p.lastAction.type,
+            text: p.lastAction.text,
+            amount: p.lastAction.amount,
+          });
+          const timer = setTimeout(() => setLatestActionAlert(null), 2500);
+          return () => clearTimeout(timer);
+        }
+      }
+    }
+  }, [players, phase]);
+
+  useEffect(() => {
+    // If in showdown or lobby, immediately clear the all-in announcement
+    if (phase === 'showdown' || phase === 'lobby') {
+      setAllInAnnouncement(null);
+      if (allInTimerRef.current) {
+        clearTimeout(allInTimerRef.current);
+        allInTimerRef.current = null;
+      }
+      return;
+    }
+
     const currentAllInIds = new Set(players.filter((p) => p.isAllIn).map((p) => p.id));
     const newlyAllIn = players.find(
       (p) => p.isAllIn && !prevAllInSetRef.current.has(p.id)
     );
 
-    if (newlyAllIn && phase !== 'lobby') {
+    if (newlyAllIn) {
       sound.playAllIn();
       setAllInAnnouncement({
         playerName: newlyAllIn.name,
         amount: newlyAllIn.currentBet,
       });
-      const timer = setTimeout(() => setAllInAnnouncement(null), 2500);
-      prevAllInSetRef.current = currentAllInIds;
-      return () => clearTimeout(timer);
+
+      // Clear any prior timer and schedule auto-dismiss
+      if (allInTimerRef.current) {
+        clearTimeout(allInTimerRef.current);
+      }
+      allInTimerRef.current = setTimeout(() => {
+        setAllInAnnouncement(null);
+        allInTimerRef.current = null;
+      }, 2200);
     }
+
     prevAllInSetRef.current = currentAllInIds;
   }, [players, phase]);
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (allInTimerRef.current) {
+        clearTimeout(allInTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const prev = prevCardsCountRef.current;
@@ -181,33 +259,33 @@ export const PokerTable: React.FC<PokerTableProps> = ({
     .map((p, originalIdx) => ({ player: p, originalIdx }))
     .filter((item) => item.player.id !== currentUserId);
 
-  // Geometry for opponent seats placed along top and sides
+  // Geometry for opponent seats placed cleanly along top and sides (Never overlapping bottom console!)
   const getOpponentCoordinates = (opponentIndex: number, totalOpponents: number) => {
     if (totalOpponents === 1) {
-      return { left: '50%', top: '18%' };
+      return { left: '50%', top: '15%' };
     }
     if (totalOpponents === 2) {
-      if (opponentIndex === 0) return { left: '25%', top: '22%' };
-      return { left: '75%', top: '22%' };
+      if (opponentIndex === 0) return { left: '26%', top: '16%' };
+      return { left: '74%', top: '16%' };
     }
     if (totalOpponents === 3) {
-      if (opponentIndex === 0) return { left: '16%', top: '38%' };
-      if (opponentIndex === 1) return { left: '50%', top: '18%' };
-      return { left: '84%', top: '38%' };
+      if (opponentIndex === 0) return { left: '16%', top: '24%' };
+      if (opponentIndex === 1) return { left: '50%', top: '14%' };
+      return { left: '84%', top: '24%' };
     }
     if (totalOpponents === 4) {
-      if (opponentIndex === 0) return { left: '15%', top: '48%' };
-      if (opponentIndex === 1) return { left: '30%', top: '19%' };
-      if (opponentIndex === 2) return { left: '70%', top: '19%' };
-      return { left: '85%', top: '48%' };
+      if (opponentIndex === 0) return { left: '12%', top: '30%' };
+      if (opponentIndex === 1) return { left: '34%', top: '14%' };
+      if (opponentIndex === 2) return { left: '66%', top: '14%' };
+      return { left: '88%', top: '30%' };
     }
-    // 5 opponents
+    // 5 opponents (Maximum capacity, clean arch with zero overlap)
     const layout = [
-      { left: '14%', top: '56%' }, // Left bottom
-      { left: '18%', top: '22%' }, // Left top
-      { left: '50%', top: '17%' }, // Center top
-      { left: '82%', top: '22%' }, // Right top
-      { left: '86%', top: '56%' }, // Right bottom
+      { left: '10%', top: '32%' }, // Far Left
+      { left: '28%', top: '15%' }, // Top Left
+      { left: '50%', top: '13%' }, // Top Center
+      { left: '72%', top: '15%' }, // Top Right
+      { left: '90%', top: '32%' }, // Far Right
     ];
     return layout[opponentIndex] || layout[0];
   };
@@ -331,9 +409,16 @@ export const PokerTable: React.FC<PokerTableProps> = ({
             {/* Center Area: Pot & Community Cards & Opponent Seats */}
             <div className="relative flex-1 w-full flex items-center justify-center min-h-0 my-auto">
               {/* Floating All-In Dramatic Announcement Banner */}
-              {allInAnnouncement && (
-                <div className="absolute top-[32%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none animate-scale-in">
-                  <div className="bg-gradient-to-r from-red-950/98 via-rose-950/98 to-amber-950/98 border-2 border-amber-300 text-white px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-3xl shadow-[0_0_50px_rgba(244,63,94,0.95),0_0_25px_rgba(245,158,11,0.8)] backdrop-blur-2xl text-center whitespace-nowrap flex flex-col items-center gap-1 animate-flame-glow">
+              {allInAnnouncement && phase !== 'showdown' && phase !== 'lobby' && (
+                <div
+                  onClick={() => setAllInAnnouncement(null)}
+                  onAnimationEnd={() => setAllInAnnouncement(null)}
+                  className="absolute top-[32%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-auto cursor-pointer animate-allin-banner"
+                >
+                  <div className="bg-gradient-to-r from-red-950/98 via-rose-950/98 to-amber-950/98 border-2 border-amber-300 text-white px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-3xl shadow-[0_0_50px_rgba(244,63,94,0.95),0_0_25px_rgba(245,158,11,0.8)] backdrop-blur-2xl text-center whitespace-nowrap flex flex-col items-center gap-1 animate-flame-glow relative group">
+                    <span className="absolute top-2 right-3 text-[10px] text-amber-300/50 group-hover:text-amber-300">
+                      ✕
+                    </span>
                     <div className="flex items-center gap-1.5 text-rose-300 text-xs sm:text-sm font-black tracking-widest uppercase">
                       <span className="text-xl animate-bounce">🔥</span>
                       <span>ALL-IN SHOWDOWN</span>
@@ -376,27 +461,102 @@ export const PokerTable: React.FC<PokerTableProps> = ({
 
               {/* Center Pot & Community Cards Container */}
               <div className="z-10 flex flex-col items-center justify-center gap-1.5 sm:gap-2.5 my-auto">
-                {/* Pot Display */}
-                <div className="flex items-center gap-1.5 sm:gap-2 bg-black/70 backdrop-blur-md border border-amber-500/40 px-3 py-1 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.25)]">
-                  <div className="flex -space-x-1 items-center">
-                    <span className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full bg-amber-400 border border-amber-600 shadow inline-block" />
-                    <span className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full bg-red-500 border border-red-700 shadow inline-block" />
-                    <span className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full bg-blue-500 border border-blue-700 shadow inline-block" />
+                {/* Center Pot & Physical Card Deck Row */}
+                <div className="flex items-center gap-2 sm:gap-3 z-20">
+                  {/* Pot Display */}
+                  <div className="flex items-center gap-1.5 sm:gap-2 bg-black/75 backdrop-blur-md border border-amber-500/50 px-3 py-1 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+                    <div className="flex -space-x-1 items-center">
+                      <span className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full bg-amber-400 border border-amber-600 shadow inline-block" />
+                      <span className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full bg-red-500 border border-red-700 shadow inline-block" />
+                      <span className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full bg-blue-500 border border-blue-700 shadow inline-block" />
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-[9px] sm:text-xs text-amber-200/80 uppercase font-bold">
+                        POT
+                      </span>
+                      <span className="text-xs sm:text-lg font-black font-mono text-amber-300">
+                        ${pot.toLocaleString()}
+                      </span>
+                    </div>
+                    {phase !== 'lobby' && (
+                      <span className="text-[9px] sm:text-[10px] bg-emerald-900/90 text-emerald-300 px-2 py-0.5 rounded-full font-bold ml-1">
+                        {phaseLabels[phase] || phase}
+                      </span>
+                    )}
                   </div>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-[9px] sm:text-xs text-amber-200/80 uppercase font-bold">
-                      POT
-                    </span>
-                    <span className="text-xs sm:text-lg font-black font-mono text-amber-300">
-                      ${pot.toLocaleString()}
-                    </span>
+
+                  {/* 3D Casino Card Deck (กองการ์ด / สำรับไพ่) */}
+                  <div className="relative select-none flex items-center">
+                    <div
+                      title={`สำรับไพ่ (เหลือ ${remainingCardsCount} ใบ)`}
+                      className="relative w-8 h-12 sm:w-11 sm:h-16 rounded-md bg-red-900 border border-amber-300/80 shadow-[1px_1px_0_#7f1d1d,2px_2px_0_#7f1d1d,3px_3px_0_#450a0a,4px_4px_0_#450a0a,5px_7px_12px_rgba(0,0,0,0.85)] flex items-center justify-center overflow-hidden transition-transform hover:scale-105"
+                    >
+                      {/* Red Diamond Crosshatch Pattern */}
+                      <div
+                        className="absolute inset-0 opacity-80"
+                        style={{
+                          backgroundColor: '#991b1b',
+                          backgroundImage:
+                            'radial-gradient(#ef4444 1.5px, transparent 1.5px), radial-gradient(#7f1d1d 1.5px, transparent 1.5px)',
+                          backgroundSize: '6px 6px',
+                          backgroundPosition: '0 0, 3px 3px',
+                        }}
+                      />
+                      <div className="absolute inset-0.5 rounded border border-amber-400/40 pointer-events-none" />
+                      <div className="relative z-10 flex flex-col items-center">
+                        <span className="text-amber-300 text-xs sm:text-sm font-serif font-black drop-shadow">
+                          ♠
+                        </span>
+                        <span className="text-[6px] sm:text-[8px] font-black text-amber-200 font-mono tracking-tighter">
+                          DECK
+                        </span>
+                      </div>
+                      {/* Animated Draw Card sliding out of deck */}
+                      {isDrawingDeck && (
+                        <div className="absolute inset-0 bg-red-800 rounded border border-amber-300 animate-deck-draw" />
+                      )}
+                    </div>
+                    {/* Remaining count */}
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-black/90 border border-amber-400/60 text-amber-300 text-[8px] sm:text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-full whitespace-nowrap shadow">
+                      {remainingCardsCount}
+                    </div>
                   </div>
-                  {phase !== 'lobby' && (
-                    <span className="text-[9px] sm:text-[10px] bg-emerald-900/90 text-emerald-300 px-2 py-0.5 rounded-full font-bold ml-1">
-                      {phaseLabels[phase] || phase}
-                    </span>
-                  )}
                 </div>
+
+                {/* Recent Player Action Pill (Highlights opponent's last move prominently) */}
+                {latestActionAlert && (
+                  <div className="z-30 animate-action-pop">
+                    <div
+                      className={`px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold border shadow-xl flex items-center gap-1.5 backdrop-blur-md ${
+                        latestActionAlert.actionType === 'fold'
+                          ? 'bg-rose-950/95 border-rose-500 text-rose-200'
+                          : latestActionAlert.actionType === 'raise'
+                          ? 'bg-emerald-900/95 border-emerald-400 text-emerald-100 font-black ring-2 ring-emerald-400/40'
+                          : latestActionAlert.actionType === 'all-in'
+                          ? 'bg-gradient-to-r from-red-600 to-amber-600 border-amber-300 text-white font-black animate-pulse'
+                          : latestActionAlert.actionType === 'check'
+                          ? 'bg-sky-950/95 border-sky-400 text-sky-200'
+                          : 'bg-blue-950/95 border-blue-400 text-blue-200'
+                      }`}
+                    >
+                      <span>
+                        {latestActionAlert.actionType === 'fold'
+                          ? '❌'
+                          : latestActionAlert.actionType === 'raise'
+                          ? '⚡'
+                          : latestActionAlert.actionType === 'all-in'
+                          ? '🔥'
+                          : latestActionAlert.actionType === 'check'
+                          ? '✋'
+                          : '💰'}
+                      </span>
+                      <span>
+                        <strong className="text-white">{latestActionAlert.playerName}</strong>:{' '}
+                        {latestActionAlert.text}
+                      </span>
+                    </div>
+                  </div>
+                )}
 
                 {/* 5 Community Cards */}
                 <div className="relative flex items-center gap-1 sm:gap-2">
@@ -416,12 +576,12 @@ export const PokerTable: React.FC<PokerTableProps> = ({
 
                   {[0, 1, 2, 3, 4].map((slotIndex) => {
                     const card = communityCards[slotIndex];
-                    let animClass = 'animate-deal-0';
-                    if (slotIndex === 0) animClass = 'animate-deal-0';
-                    else if (slotIndex === 1) animClass = 'animate-deal-1';
-                    else if (slotIndex === 2) animClass = 'animate-deal-2';
-                    else if (slotIndex === 3) animClass = 'animate-deal-turn';
-                    else if (slotIndex === 4) animClass = 'animate-deal-river';
+                    let animClass = 'animate-deal-deck-0';
+                    if (slotIndex === 0) animClass = 'animate-deal-deck-0';
+                    else if (slotIndex === 1) animClass = 'animate-deal-deck-1';
+                    else if (slotIndex === 2) animClass = 'animate-deal-deck-2';
+                    else if (slotIndex === 3) animClass = 'animate-deal-deck-turn';
+                    else if (slotIndex === 4) animClass = 'animate-deal-deck-river';
 
                     return (
                       <div key={slotIndex} className="relative">
@@ -537,10 +697,11 @@ export const PokerTable: React.FC<PokerTableProps> = ({
                       <div className="flex items-center gap-1 sm:gap-1.5">
                         {myPlayer.cards.map((c, idx) => {
                           const isAllIn = myPlayer.isAllIn;
+                          const dealAnimClass = idx === 0 ? 'animate-deal-hole-1' : 'animate-deal-hole-2';
                           return (
                             <div
-                              key={idx}
-                              className={`transition-all duration-300 ${
+                              key={`${gameState.handNumber}-${idx}`}
+                              className={`transition-all duration-300 ${dealAnimClass} ${
                                 isAllIn
                                   ? 'animate-allin-reveal drop-shadow-[0_0_15px_rgba(245,158,11,0.95)] scale-105'
                                   : 'hover:-translate-y-1 hover:scale-105 drop-shadow-[0_4px_8px_rgba(0,0,0,0.7)]'
